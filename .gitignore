@@ -6,3 +6,7 @@
 /.gradle
 /.settings
 .jshintrc
+node_modules
+.idea
+/src/main/resources/public/dist/
+/src/main/resources/public/js/

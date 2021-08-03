@@ -1,12 +1,43 @@
-<div class="cell twelve-mobile" style="z-index: 10">
-    <button ng-click="openMediaLibrary()">Ouvrir un fichier sur Geogebra</button>
+<div class="row" style="z-index: 10">
+    <div class="cell zero-mobile">
+        <h1>
+            <i18n>geogebra.title</i18n>
+        </h1>
+    </div>
+    <div class="cell twelve-mobile right-magnet">
+        <button class="box-shadow-button" ng-click="newGGB()">Nouveau projet Geogebra</button>
+    </div>
+    <div class="cell twelve-mobile right-magnet right-spacing">
+        <button class="cancel box-shadow-button" ng-click="openMediaLibrary()">Ouvrir</button>
+    </div>
+    <div class="cell twelve-mobile right-magnet right-spacing">
+        <button class="cancel box-shadow-button" ng-click="saveGGB()">Enregistrer</button>
+    </div>
+    <div class="cell twelve-mobile right-magnet right-spacing center-pmb"
+         ng-if="data && data.documentSelected && data.documentSelected.metadata && data.documentSelected.metadata.filename">
+        <span>[[data.documentSelected.metadata.filename]]</span>
+    </div>
 </div>
-<div class="cell twelve-mobile right-magnet" style="z-index: 10">
-    <button ng-click="saveGGB()">Sauvegarder mon fichier Geogebra</button>
-</div>
+
 <div id="ggb-element" ng-init="init()" class="geogebra-app"></div>
+
 <lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
     <div ng-if="displayState.getDocument">
+        <div class="row center warning">Tout document ouvert depuis "Mes documents" sera copié dans "Documents ajoutés dans les applis"</div>
         <media-library ng-model="data.documentSelected" ng-change="displayState.getDocument = false; getGGB();" file-format="'any'"></media-library>
+    </div>
+</lightbox>
+<lightbox show="displayState.name" on-close="displayState.name = false">
+    <div ng-if="displayState.name">
+        <div class="row">
+            <h1>Nom de votre projet Geogebra</h1>
+            <form>
+                <input type="text" ng-model="name" placeholder="[[name]]" autofocus/>.ggb
+            </form>
+        </div>
+        <div class="row">
+            <input ng-disabled="!name || name.trim() == ''" type="submit" class="button right-magnet" ng-click="saveDocument(name)" i18n-value="Confirmer"/>
+            <input type="button" class="cancel right-magnet horizontal-spacing-twice" ng-click="cancelSaveDocument()" i18n-value="Annuler"/>
+        </div>
     </div>
 </lightbox>

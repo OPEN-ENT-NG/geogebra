@@ -1,14 +1,14 @@
-import {ng, notify, template} from 'entcore';
+import {ng, template, workspace, Document, toasts} from 'entcore';
 import {Utils} from "../utils/Utils";
 import http from "axios";
 
 declare var GGBApplet: any;
 
 /**
-	Wrapper controller
-	------------------
-	Main controller.
-**/
+ Wrapper controller
+ ------------------
+ Main controller.
+ **/
 export const mainController = ng.controller('MainController', ['$scope', 'route', ($scope, route) => {
 	// Routing & template opening
 	route({
@@ -16,22 +16,39 @@ export const mainController = ng.controller('MainController', ['$scope', 'route'
 			template.open('main', 'main');
 		}
 	});
+	const opts = {
+		"id": "ggbApplet",
+		"name": "ggbApplet",
+		"appName": "classic", //"classic graphing, geometry, 3d"
+		"width": 1960,
+		"height": 900,
+		"showToolBar": true,
+		"showAlgebraInput": true,
+		"showMenuBar": true,
+		"enableFileFeatures": false,
+		"showFullscreenButton": true,
+		"showAnimationButton": true,
+		"showSuggestionButtons": true,
+		"showStartTooltip": true
+	};
 	$scope.init = () => {
 		$scope.displayState = {
-			getDocument:false
+			getDocument:false,
+			name:false
 		};
 		$scope.data = {
 			documentSelected:undefined
 		}
-		var opts = { "id": "ggbApplet", "name": "ggbApplet", "appName": "classic", //"classic graphing, geometry, 3d"
-			"width": 2000, "height": 900,
-			"showToolBar": true, "showAlgebraInput": true, "showMenuBar": true,
-			"enableFileFeatures": false,
-			"showFullscreenButton": true, "showAnimationButton":true, "showSuggestionButtons": true, "showStartTooltip": true
-		};
 		$scope.ggbApp = new GGBApplet(opts, true);
-		//ggbApp.setHTML5Codebase("./web")
 		$scope.ggbApp.inject('ggb-element');
+	}
+	$scope.newGGB = async () => {
+		// @ts-ignore
+		if(ggbApplet.getObjectNumber() > 0 && confirm("Attention, vos modifications seront perdues. Voulez-vous continuer ?")){
+			// @ts-ignore
+			ggbApplet.newConstruction();
+			$scope.data.documentSelected = undefined;
+		}
 	}
 
 	$scope.getGGB = async () => {
@@ -39,40 +56,77 @@ export const mainController = ng.controller('MainController', ['$scope', 'route'
 			$scope.data.documentSelected.metadata.extension == "ggb"){
 			try {
 				const idFile = $scope.data.documentSelected._id
-				let file = await http.get(`geogebra/document/${idFile}`);
+				let file = await http.get(`workspace/document/base64/${idFile}`);
 				// @ts-ignore
 				ggbApplet.setBase64(file.data.base64File);
-				notify.success("fichier geogebra bien intégré à l'appli");
 			}
 			catch (e) {
-				notify.error(e.error);
+				toasts.warning(e.error);
 				throw (e);
 			}
 		}else{
 
 		}
 	}
-	$scope.saveGGB = async () => {
+	$scope.saveDocument = (name:string) => {
 		try {
-			// @ts-ignore
-			const base64 = ggbApplet.getBase64();
-			const name = 'name.ggb';
-			const byteCharacters = atob(base64);
-			var n = byteCharacters.length;
-			var u8arr = new Uint8Array(n);
-			while (n--) {
-				u8arr[n] = byteCharacters.charCodeAt(n);
-			}
-			const file = new Blob([u8arr], {type: 'application/octet-stream'});
-			await http.post('workspace/document', file);
-			notify.success("fichier geogebra bien sauvegardé");
+			const u8arr = extractedFileBinary();
+			let file = new File([u8arr], name + ".ggb", {type: 'application/octet-stream'});
+			let doc = new Document();
+			workspace.v2.service.createDocument(file, doc, null,
+				{visibility: "protected", application: "media-library"}).then(async data => {
+				$scope.data.documentSelected = data;
+				toasts.confirm("Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"");
+				$scope.displayState.name = false;
+				await Utils.safeApply($scope);
+			});
+		} catch (e) {
+			toasts.warning(e.error);
+			throw (e);
+		}
+	}
+
+	function extractedFileBinary() {
+		// @ts-ignore
+		const base64 = ggbApplet.getBase64();
+		const byteCharacters = atob(base64);
+		let n = byteCharacters.length;
+		const u8arr = new Uint8Array(n);
+		while (n--) {
+			u8arr[n] = byteCharacters.charCodeAt(n);
+		}
+		return u8arr;
+	}
+
+	$scope.updateGGBFile = async () => {
+		try {
+			const u8arr = extractedFileBinary();
+			let file = new File([u8arr], $scope.data.documentSelected.metadata.filename, {type: 'application/octet-stream'});
+			let doc = new Document($scope.data.documentSelected);
+			await workspace.v2.service.updateDocument(file, doc)
+			toasts.confirm("Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"");
 		}catch(e){
-			notify.error(e.error);
+			toasts.warning(e.error);
 			throw (e);
 		}
 	}
 	$scope.openMediaLibrary = async () => {
-		$scope.displayState.getDocument = true;
+		// @ts-ignore
+		if(ggbApplet.getObjectNumber() == 0 || (ggbApplet.getObjectNumber() > 0 && confirm("Attention, vos modifications seront perdues. Voulez-vous continuer ?"))) {
+			$scope.displayState.getDocument = true;
+			await Utils.safeApply($scope);
+		}
+	}
+	$scope.saveGGB = async () => {
+		if($scope.data.documentSelected){
+			$scope.updateGGBFile();
+		}else{
+			$scope.displayState.name = true;
+			await Utils.safeApply($scope);
+		}
+	};
+	$scope.cancelSaveDocument = async () => {
+		$scope.displayState.name = false;
 		await Utils.safeApply($scope);
 	}
 }]);

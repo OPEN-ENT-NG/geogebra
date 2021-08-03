@@ -1,6 +1,6 @@
 export class Utils {
     static safeApply (that: any) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             let phase = (that.$root !== null)?that.$root.$$phase : undefined;
             if(phase === '$apply' || phase === '$digest') {
                 if(resolve && (typeof(resolve) === 'function')) resolve();

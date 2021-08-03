@@ -134,23 +134,46 @@
 	                entcore_1.template.open('main', 'main');
 	            }
 	        });
+	        var opts = {
+	            "id": "ggbApplet",
+	            "name": "ggbApplet",
+	            "appName": "classic",
+	            "width": 2000,
+	            "height": 900,
+	            "showToolBar": true,
+	            "showAlgebraInput": true,
+	            "showMenuBar": true,
+	            "enableFileFeatures": false,
+	            "showFullscreenButton": true,
+	            "showAnimationButton": true,
+	            "showSuggestionButtons": true,
+	            "showStartTooltip": true
+	        };
 	        $scope.init = function () {
 	            $scope.displayState = {
-	                getDocument: false
+	                getDocument: false,
+	                name: false
 	            };
 	            $scope.data = {
 	                documentSelected: undefined
-	            };
-	            var opts = { "id": "ggbApplet", "name": "ggbApplet", "appName": "classic",
-	                "width": 2000, "height": 900,
-	                "showToolBar": true, "showAlgebraInput": true, "showMenuBar": true,
-	                "enableFileFeatures": false,
-	                "showFullscreenButton": true, "showAnimationButton": true, "showSuggestionButtons": true, "showStartTooltip": true
 	            };
 	            $scope.ggbApp = new GGBApplet(opts, true);
 	            //ggbApp.setHTML5Codebase("./web")
 	            $scope.ggbApp.inject('ggb-element');
 	        };
+	        var newConstructionBase64 = "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";
+	        $scope.newGGB = function () { return __awaiter(_this, void 0, void 0, function () {
+	            return __generator(this, function (_a) {
+	                // @ts-ignore
+	                if (ggbApplet.getBase64() !== newConstructionBase64) {
+	                    if (confirm("Attention, vos modifications seront perdues. Voulez-vous continuer ?")) {
+	                        // @ts-ignore
+	                        ggbApplet.newConstruction();
+	                    }
+	                }
+	                return [2 /*return*/];
+	            });
+	        }); };
 	        $scope.getGGB = function () { return __awaiter(_this, void 0, void 0, function () {
 	            var idFile, file, e_1;
 	            return __generator(this, function (_a) {
@@ -178,22 +201,22 @@
 	                }
 	            });
 	        }); };
-	        $scope.saveGGB = function () { return __awaiter(_this, void 0, void 0, function () {
-	            var base64, name_1, byteCharacters, n, u8arr, file, e_2;
+	        $scope.saveGGB = function (name) { return __awaiter(_this, void 0, void 0, function () {
+	            var base64, byteCharacters, n, u8arr, file, doc, e_2;
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
 	                        _a.trys.push([0, 2, , 3]);
 	                        base64 = ggbApplet.getBase64();
-	                        name_1 = 'name.ggb';
 	                        byteCharacters = atob(base64);
 	                        n = byteCharacters.length;
 	                        u8arr = new Uint8Array(n);
 	                        while (n--) {
 	                            u8arr[n] = byteCharacters.charCodeAt(n);
 	                        }
-	                        file = new Blob([u8arr], { type: 'application/octet-stream' });
-	                        return [4 /*yield*/, axios_1.default.post('workspace/document', file)];
+	                        file = new File([u8arr], name + ".ggb", { type: 'application/octet-stream' });
+	                        doc = new entcore_1.Document();
+	                        return [4 /*yield*/, entcore_1.workspace.v2.service.createDocument(file, doc)];
 	                    case 1:
 	                        _a.sent();
 	                        entcore_1.notify.success("fichier geogebra bien sauvegardé");
@@ -211,6 +234,30 @@
 	                switch (_a.label) {
 	                    case 0:
 	                        $scope.displayState.getDocument = true;
+	                        return [4 /*yield*/, Utils_1.Utils.safeApply($scope)];
+	                    case 1:
+	                        _a.sent();
+	                        return [2 /*return*/];
+	                }
+	            });
+	        }); };
+	        $scope.getNewName = function () { return __awaiter(_this, void 0, void 0, function () {
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0:
+	                        $scope.displayState.name = true;
+	                        return [4 /*yield*/, Utils_1.Utils.safeApply($scope)];
+	                    case 1:
+	                        _a.sent();
+	                        return [2 /*return*/];
+	                }
+	            });
+	        }); };
+	        $scope.cancelSaveGGB = function () { return __awaiter(_this, void 0, void 0, function () {
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0:
+	                        $scope.displayState.name = false;
 	                        return [4 /*yield*/, Utils_1.Utils.safeApply($scope)];
 	                    case 1:
 	                        _a.sent();
