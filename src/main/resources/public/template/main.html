@@ -1,0 +1,12 @@
+<div class="cell twelve-mobile" style="z-index: 10">
+    <button ng-click="openMediaLibrary()">Ouvrir un fichier sur Geogebra</button>
+</div>
+<div class="cell twelve-mobile right-magnet" style="z-index: 10">
+    <button ng-click="saveGGB()">Sauvegarder mon fichier Geogebra</button>
+</div>
+<div id="ggb-element" ng-init="init()" class="geogebra-app"></div>
+<lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
+    <div ng-if="displayState.getDocument">
+        <media-library ng-model="data.documentSelected" ng-change="displayState.getDocument = false; getGGB();" file-format="'any'"></media-library>
+    </div>
+</lightbox>
