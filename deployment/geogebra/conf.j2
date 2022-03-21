@@ -1,0 +1,26 @@
+{
+	"name": "{{geogebraVersion}}",
+	"config": {
+		"main" : "fr.openent.geogebra.Geogebra",
+		"port" : 8134,
+		"app-name" : "Geogebra",
+		"app-address" : "/geogebra",
+		"app-icon" : "Geogebra-large",
+		"host": "https://{{ host }}",
+		"ssl" : true,
+		{% if overrideTheme %} "override-theme": {{ override2d }}, {% endif %}
+		"auto-redeploy": false,
+		"userbook-host": "https://{{ host }}",
+		"app-registry.port" : 8012,
+		"mode" : "prod",
+		"entcore.port" : 8009,
+		"publicConf": {
+			"xiti": {
+				"LIBELLE_SERVICE": {
+					"default": "RESSOURCE_PRODUCTION"
+				},
+				"OUTIL": "GEOGEBRA"
+			}
+		}
+	}
+}
