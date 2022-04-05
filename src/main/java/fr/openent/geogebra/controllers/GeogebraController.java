@@ -5,6 +5,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 
 public class GeogebraController extends ControllerHelper{
@@ -16,4 +17,11 @@ public class GeogebraController extends ControllerHelper{
         renderView(request);
     }
 
+    @Get("/:id")
+    @ApiDoc("Render view with id")
+    @SecuredAction(value = "geogebra.edit", type = ActionType.WORKFLOW)
+    public void renderFile(HttpServerRequest request) {
+        String id = request.params().get("id");
+        renderView(request, new JsonObject().put("documentId", id), "geogebra.html", null);
+    }
 }
