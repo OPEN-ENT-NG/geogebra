@@ -74,10 +74,6 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
 
     $scope.getGGBById = async () => {
         try {
-            console.log(window.location.pathname);
-            var pathName = window.location.pathname;
-            var splits = pathName.split("/");
-            console.log(splits);
             let file = await http.get(`workspace/document/base64/${window.documentId}`, {baseURL: '/'});
             // @ts-ignore
             ggbApplet.setBase64(file.data.base64File);
@@ -144,6 +140,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
             await Utils.safeApply($scope);
         }
     };
+
     $scope.cancelSaveDocument = async () => {
         $scope.displayState.name = false;
         await Utils.safeApply($scope);
