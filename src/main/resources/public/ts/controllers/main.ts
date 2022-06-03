@@ -44,6 +44,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         $scope.ggbApp = new GGBApplet(opts, true);
         $scope.ggbApp.inject('ggb-element');
         $scope.documentId = window.documentId;
+        $scope.fileName = window.fileName;
 
     }
     $scope.newGGB = async () => {
@@ -52,6 +53,10 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
             // @ts-ignore
             ggbApplet.newConstruction();
             $scope.data.documentSelected = undefined;
+            $scope.fileName = undefined;
+            $scope.documentId = undefined;
+            $scope.$apply();
+            this.location.go(" ");
         }
     }
 
@@ -116,10 +121,21 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
     $scope.updateGGBFile = async () => {
         try {
             const u8arr = extractedFileBinary();
-            let file = new File([u8arr], $scope.data.documentSelected.metadata.filename, {type: 'application/octet-stream'});
-            let doc = new Document($scope.data.documentSelected);
-            await workspace.v2.service.updateDocument(file, doc)
+
+            if($scope.data.documentSelected){
+                let file = new File([u8arr], $scope.data.documentSelected.metadata.filename, {type: 'application/octet-stream'});
+                let doc = new Document($scope.data.documentSelected);
+                await workspace.v2.service.updateDocument(file, doc)
+            } else {
+                let file = new File([u8arr], $scope.fileName, {type: 'application/octet-stream'});
+
+                let doc = new Document();
+                doc.name = $scope.fileName;
+                doc._id = $scope.documentId;
+                await workspace.v2.service.updateDocument(file, doc);
+            }
             toasts.confirm("Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"");
+
         } catch (e) {
             toasts.warning(e.error);
             throw (e);
@@ -133,11 +149,12 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }
     }
     $scope.saveGGB = async () => {
-        if ($scope.data.documentSelected) {
+        if ($scope.data.documentSelected || $scope.documentId!=="") {
             $scope.updateGGBFile();
         } else {
             $scope.displayState.name = true;
             await Utils.safeApply($scope);
+            http.post("geogebra");
         }
     };
 
@@ -152,7 +169,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
                 $scope.documentId = window.documentId;
                 await $scope.getGGBById();
             }
-        },1000);
+        },2000);
     });
 
 }]);
