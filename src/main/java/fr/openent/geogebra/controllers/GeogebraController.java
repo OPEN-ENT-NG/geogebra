@@ -22,6 +22,7 @@ public class GeogebraController extends ControllerHelper{
     @SecuredAction(value = "geogebra.edit", type = ActionType.WORKFLOW)
     public void renderFile(HttpServerRequest request) {
         String id = request.params().get("id");
-        renderView(request, new JsonObject().put("documentId", id), "geogebra.html", null);
+        String name = request.params().get("fileName");
+        renderView(request, new JsonObject().put("documentId", id).put("documentName", name), "geogebra.html", null);
     }
 }

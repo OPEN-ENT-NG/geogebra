@@ -41,7 +41,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         $scope.data = {
             documentSelected: undefined
         }
-        $scope.ggbApp = new GGBApplet(opts, true);
+        $scope.ggbApp = new GGBApplet(opts, "5.0");
         $scope.ggbApp.inject('ggb-element');
         $scope.documentId = window.documentId;
 
