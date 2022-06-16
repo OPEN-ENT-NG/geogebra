@@ -1,4 +1,4 @@
-import {angular, Document, ng, template, toasts, workspace} from 'entcore';
+import {Document, ng, template, toasts, workspace} from 'entcore';
 import {Utils} from "../utils/Utils";
 import http from "axios";
 
@@ -33,6 +33,9 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         "showSuggestionButtons": true,
         "showStartTooltip": true
     };
+
+    const delay = 10;
+
     $scope.init = () => {
         $scope.displayState = {
             getDocument: false,
@@ -43,10 +46,20 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }
         $scope.ggbApp = new GGBApplet(opts, true);
         $scope.ggbApp.inject('ggb-element');
-        $scope.documentId = window.documentId;
-        $scope.fileName = window.fileName;
-
+        const int = setInterval(async function () {
+            const app = $scope.ggbApp.getAppletObject();
+            if (app && app.exists) {
+                clearInterval(int);
+                if (!!window.documentId) {
+                    $scope.documentId = window.documentId;
+                    $scope.fileName = window.fileName;
+                    $scope.getGGBById();
+                    await Utils.safeApply($scope);
+                }
+            }
+        }, delay);
     }
+
     $scope.newGGB = async () => {
         // @ts-ignore
         if (ggbApplet.getObjectNumber() > 0 && confirm("Attention, vos modifications seront perdues. Voulez-vous continuer ?")) {
@@ -149,7 +162,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }
     }
     $scope.saveGGB = async () => {
-        if ($scope.data.documentSelected || $scope.documentId!=="") {
+        if ($scope.data.documentSelected || $scope.documentId) {
             $scope.updateGGBFile();
         } else {
             $scope.displayState.name = true;
@@ -162,14 +175,5 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         $scope.displayState.name = false;
         await Utils.safeApply($scope);
     }
-
-    angular.element(document).ready(async function () {
-        $timeout(async function () {
-            if (!!window.documentId) {
-                $scope.documentId = window.documentId;
-                await $scope.getGGBById();
-            }
-        },2000);
-    });
 
 }]);

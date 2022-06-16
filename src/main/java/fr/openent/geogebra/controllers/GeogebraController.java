@@ -1,6 +1,7 @@
 package fr.openent.geogebra.controllers;
 
 import fr.openent.geogebra.Geogebra;
+import fr.openent.geogebra.helper.ParametersHelper;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
@@ -14,7 +15,7 @@ import org.entcore.common.events.EventStoreFactory;
 
 public class GeogebraController extends ControllerHelper{
 
-    private EventStore eventStore;
+    private final EventStore eventStore;
     private enum GeogebraEvent {ACCESS, CREATE}
 
     public GeogebraController() {
@@ -33,10 +34,16 @@ public class GeogebraController extends ControllerHelper{
     @ApiDoc("Render view with id")
     @SecuredAction(value = "geogebra.edit", type = ActionType.WORKFLOW)
     public void renderFile(HttpServerRequest request) {
-        String id = request.params().get("id");
-        String name = request.params().get("fileName");
-        eventStore.createAndStoreEvent(GeogebraEvent.ACCESS.name(), request);
-        renderView(request, new JsonObject().put("documentId", id).put("fileName", name), "geogebra.html", null);
+        String id = request.getParam("id");
+        String name = request.getParam("fileName");
+        ParametersHelper.hasMissingOrEmptyParameters(new String[] {id, name}, handler -> {
+            if (handler.isRight()) {
+                eventStore.createAndStoreEvent(GeogebraEvent.ACCESS.name(), request);
+                renderView(request, new JsonObject().put("documentId", id).put("fileName", name), "geogebra.html", null);
+            } else {
+                badRequest(request, "[Geogebra@renderFile] " + handler.left().getValue());
+            }
+        });
     }
 
     @Post("")
