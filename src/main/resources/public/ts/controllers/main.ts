@@ -109,6 +109,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
             workspace.v2.service.createDocument(file, doc, null,
                 {visibility: "protected", application: "media-library"}).then(async data => {
                 $scope.data.documentSelected = data;
+                http.post("geogebra");
                 toasts.confirm("Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"");
                 $scope.displayState.name = false;
                 await Utils.safeApply($scope);
@@ -134,21 +135,15 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
     $scope.updateGGBFile = async () => {
         try {
             const u8arr = extractedFileBinary();
-
-            if($scope.data.documentSelected){
-                let file = new File([u8arr], $scope.data.documentSelected.metadata.filename, {type: 'application/octet-stream'});
-                let doc = new Document($scope.data.documentSelected);
-                await workspace.v2.service.updateDocument(file, doc)
-            } else {
-                let file = new File([u8arr], $scope.fileName, {type: 'application/octet-stream'});
-
-                let doc = new Document();
-                doc.name = $scope.fileName;
-                doc._id = $scope.documentId;
-                await workspace.v2.service.updateDocument(file, doc);
-            }
-            toasts.confirm("Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"");
-
+            const fileName = ($scope.data.documentSelected) ? $scope.data.documentSelected.metadata.filename : $scope.fileName;
+            const id = ($scope.data.documentSelected) ? $scope.data.documentSelected.data._id : $scope.documentId;
+            let file = new File([u8arr], fileName, {type: 'application/octet-stream'});
+            let doc = new Document();
+            doc.name = fileName;
+            doc._id = id;
+            await workspace.v2.service.updateDocument(file, doc);
+            http.post("geogebra");
+            toasts.confirm("Sauvegarde effectuée");
         } catch (e) {
             toasts.warning(e.error);
             throw (e);
@@ -167,7 +162,6 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         } else {
             $scope.displayState.name = true;
             await Utils.safeApply($scope);
-            http.post("geogebra");
         }
     };
 

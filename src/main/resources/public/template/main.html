@@ -28,7 +28,6 @@
 
 <lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
     <div ng-if="displayState.getDocument">
-        <div class="row center warning">Tout document ouvert depuis "Mes documents" sera copié dans "Documents ajoutés dans les applis"</div>
         <media-library ng-model="data.documentSelected" ng-change="displayState.getDocument = false; getGGB();" file-format="'any'"></media-library>
     </div>
 </lightbox>
