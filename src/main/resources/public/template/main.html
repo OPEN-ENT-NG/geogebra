@@ -14,16 +14,20 @@
         <button class="cancel box-shadow-button" ng-click="saveGGB()">Enregistrer</button>
     </div>
     <div class="cell twelve-mobile right-magnet right-spacing center-pmb"
-         ng-if="data && data.documentSelected && data.documentSelected.metadata && data.documentSelected.metadata.filename">
+         ng-if="!data.documentSelected && !data.documentSelected.metadata && !data.documentSelected.metadata.filename">
+        <span>[[fileName]]</span>
+    </div>
+    <div class="cell twelve-mobile right-magnet right-spacing center-pmb"
+        ng-if="data && data.documentSelected && data.documentSelected.metadata && data.documentSelected.metadata.filename">
         <span>[[data.documentSelected.metadata.filename]]</span>
     </div>
+
 </div>
 
 <div id="ggb-element" ng-init="init()" class="geogebra-app"></div>
 
 <lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
     <div ng-if="displayState.getDocument">
-        <div class="row center warning">Tout document ouvert depuis "Mes documents" sera copié dans "Documents ajoutés dans les applis"</div>
         <media-library ng-model="data.documentSelected" ng-change="displayState.getDocument = false; getGGB();" file-format="'any'"></media-library>
     </div>
 </lightbox>
