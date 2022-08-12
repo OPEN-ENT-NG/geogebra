@@ -136,7 +136,9 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         try {
             const u8arr = extractedFileBinary();
             const fileName = ($scope.data.documentSelected) ? $scope.data.documentSelected.metadata.filename : $scope.fileName;
-            const id = ($scope.data.documentSelected) ? $scope.data.documentSelected.data._id : $scope.documentId;
+            const id = ($scope.data.documentSelected) ?
+                (($scope.data.documentSelected.data) ? $scope.data.documentSelected.data._id : $scope.data.documentSelected._id)
+                : $scope.documentId;
             let file = new File([u8arr], fileName, {type: 'application/octet-stream'});
             let doc = new Document();
             doc.name = fileName;
