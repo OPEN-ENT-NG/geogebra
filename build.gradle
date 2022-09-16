@@ -56,7 +56,6 @@ compileTestJava {
     targetCompatibility = project.targetCompatibility
 }
 dependencies {
-    implementation 'junit:junit:4.13.1'
     compileOnly "io.vertx:vertx-core:$vertxVersion"
     testCompile "junit:junit:$junitVersion"
     testCompile "org.entcore:tests:$entCoreVersion"
@@ -64,7 +63,6 @@ dependencies {
     testCompile "io.vertx:vertx-unit:$vertxVersion"
     testCompile "org.mockito:mockito-core:$mockitoVersion"
     compile "org.entcore:common:$entCoreVersion"
-    compile "org.apache.commons:commons-text:1.6"
 }
 
 jar {
