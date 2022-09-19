@@ -2,5 +2,7 @@
   "geogebra.title": "Geogebra",
   "geogebra.new.project": "Nouveau projet Geogebra",
   "geogebra.open": "Ouvrir",
-  "geogebra.project.name": "Nom de votre projet Geogebra"
+  "geogebra.project.name": "Nom de votre projet Geogebra",
+  "geogebra.save.success": "Sauvegarde effectuée",
+  "geogebra.save.success.applis": "Sauvegarde effectuée dans \"Documents ajoutés dans les applis\""
 }
