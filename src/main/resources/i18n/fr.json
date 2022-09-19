@@ -1,3 +1,6 @@
 {
-  "geogebra.title": "Geogebra"
+  "geogebra.title": "Geogebra",
+  "geogebra.new.project": "Nouveau projet Geogebra",
+  "geogebra.open": "Ouvrir",
+  "geogebra.project.name": "Nom de votre projet Geogebra"
 }
