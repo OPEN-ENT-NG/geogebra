@@ -29,23 +29,6 @@ public class GeogebraController extends ControllerHelper{
         eventStore.createAndStoreEvent(GeogebraEvent.ACCESS.name(), request);
         renderView(request);
     }
-
-    @Get("/:id")
-    @ApiDoc("Render view with id")
-    @SecuredAction(value = "geogebra.edit", type = ActionType.WORKFLOW)
-    public void renderFile(HttpServerRequest request) {
-        String id = request.getParam("id");
-        String name = request.getParam("fileName");
-        ParametersHelper.hasMissingOrEmptyParameters(new String[] {id, name}, handler -> {
-            if (handler.isRight()) {
-                eventStore.createAndStoreEvent(GeogebraEvent.ACCESS.name(), request);
-                renderView(request, new JsonObject().put("documentId", id).put("fileName", name), "geogebra.html", null);
-            } else {
-                badRequest(request, "[Geogebra@renderFile] " + handler.left().getValue());
-            }
-        });
-    }
-
     @Post("")
     @ApiDoc("Create a file")
     public void postFile(HttpServerRequest request) {
