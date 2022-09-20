@@ -1,6 +1,8 @@
-import {Document, ng, template, toasts, workspace} from 'entcore';
+import {Document, navigationGuardService, ng, template, toasts, workspace} from 'entcore';
 import {Utils} from "../utils/Utils";
-import http from "axios";
+import http, {AxiosResponse} from "axios";
+import {GEOGEBRA_APP, GEOGEBRA_EXTENSION, GEOGEBRA_FILENAME_URL, GEOGEBRA_METADATA_TYPE} from "../behaviours";
+
 
 declare var GGBApplet: any;
 declare let window: any;
@@ -36,13 +38,15 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
 
     const delay = 10;
 
-    $scope.init = () => {
+    $scope.init = () : void => {
         $scope.displayState = {
             getDocument: false,
             name: false
         };
         $scope.data = {
-            documentSelected: undefined
+            documentSelected: undefined,
+            fileName: "",
+            documentId: undefined
         }
         $scope.ggbApp = new GGBApplet(opts, true);
         $scope.ggbApp.inject('ggb-element');
@@ -50,9 +54,16 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
             const app = $scope.ggbApp.getAppletObject();
             if (app && app.exists) {
                 clearInterval(int);
+                const hash : string = window.location.hash;
+                if(hash.length > 0){
+                    window.documentId = hash.substring(hash.indexOf("#/") + 2, hash.indexOf(GEOGEBRA_FILENAME_URL));
+                    window.fileName = hash.substring(
+                        hash.indexOf(GEOGEBRA_FILENAME_URL) + GEOGEBRA_FILENAME_URL.length,
+                        hash.indexOf(GEOGEBRA_EXTENSION) + GEOGEBRA_EXTENSION.length)
+                }
                 if (!!window.documentId) {
-                    $scope.documentId = window.documentId;
-                    $scope.fileName = window.fileName;
+                    $scope.data.documentId = window.documentId;
+                    $scope.data.fileName = window.fileName;
                     $scope.getGGBById();
                     await Utils.safeApply($scope);
                 }
@@ -60,27 +71,34 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }, delay);
     }
 
-    $scope.newGGB = async () => {
+    $scope.newGGB = async () : Promise<void> => {
         // @ts-ignore
-        if (ggbApplet.getObjectNumber() > 0 && confirm("Attention, vos modifications seront perdues. Voulez-vous continuer ?")) {
+        if (ggbApplet.getObjectNumber() > 0) {
             // @ts-ignore
             ggbApplet.newConstruction();
             $scope.data.documentSelected = undefined;
-            $scope.fileName = undefined;
-            $scope.documentId = undefined;
-            $scope.$apply();
-            this.location.go(" ");
+            $scope.data.fileName = undefined;
+            $scope.data.documentId = undefined;
+            window.location.hash = ``;
+            await Utils.safeApply($scope);
         }
     }
 
-    $scope.getGGB = async () => {
+    $scope.isEmptyProject = () : boolean => {
+        return $scope.ggbApp.getAppletObject() && $scope.ggbApp.getAppletObject().exists() && $scope.ggbApp.getAppletObject().getObjectNumber() == 0
+    }
+
+    $scope.updateBase64 = () : void => {
+        // @ts-ignore
+        $scope.data.base64 = ggbApplet.getBase64();
+    }
+
+    $scope.getGGB = async () : Promise<void> => {
         if ($scope.data.documentSelected && $scope.data.documentSelected.metadata && $scope.data.documentSelected.metadata.extension &&
-            $scope.data.documentSelected.metadata.extension == "ggb") {
+            GEOGEBRA_EXTENSION.endsWith($scope.data.documentSelected.metadata.extension)) {
             try {
-                const idFile = $scope.data.documentSelected._id;
-                let file = await http.get(`workspace/document/base64/${idFile}`, {baseURL: '/'});
-                // @ts-ignore
-                ggbApplet.setBase64(file.data.base64File);
+                const {id} = extractNameAndIdProject();
+                await setGGBAplet(id);
             } catch (e) {
                 toasts.warning(e.error);
                 throw (e);
@@ -90,29 +108,44 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }
     }
 
-    $scope.getGGBById = async () => {
+    const setGGBAplet = async (id: string) : Promise<void> => {
+        const file : AxiosResponse = await http.get(`workspace/document/base64/${id}`, {baseURL: '/'});
+        // @ts-ignore
+        ggbApplet.setBase64(file.data.base64File);
+        $scope.data.base64 = file.data.base64File;
+        const {fileName} = extractNameAndIdProject();
+        $scope.data.fileName = fileName;
+        await resetAndSetHash(id, fileName);
+    }
+
+    $scope.getGGBById = async () : Promise<void> => {
         try {
-            let file = await http.get(`workspace/document/base64/${window.documentId}`, {baseURL: '/'});
-            // @ts-ignore
-            ggbApplet.setBase64(file.data.base64File);
+            await setGGBAplet(window.documentId);
         } catch (e) {
             toasts.warning(e.error);
             throw (e);
         }
     }
 
-    $scope.saveDocument = (name: string) => {
+    async function resetAndSetHash(id: string, fileName: string) : Promise<void> {
+        navigationGuardService.reset(GEOGEBRA_APP);
+        window.location.hash = `${id}${GEOGEBRA_FILENAME_URL}${fileName}`;
+        await Utils.safeApply($scope);
+    }
+
+    $scope.saveDocument = (name: string) : void => {
         try {
-            const u8arr = extractedFileBinary();
-            let file = new File([u8arr], name + ".ggb", {type: 'application/octet-stream'});
-            let doc = new Document();
+            const u8arr : Uint8Array = extractedFileBinary();
+            let file : File = new File([u8arr], name + GEOGEBRA_EXTENSION, {type: GEOGEBRA_METADATA_TYPE});
+            let doc : Document = new Document();
             workspace.v2.service.createDocument(file, doc, null,
                 {visibility: "protected", application: "media-library"}).then(async data => {
                 $scope.data.documentSelected = data;
-                http.post("geogebra");
-                toasts.confirm("Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"");
+                http.post(GEOGEBRA_APP);
+                toasts.confirm("geogebra.save.success.applis");
                 $scope.displayState.name = false;
-                await Utils.safeApply($scope);
+                const {fileName, id} = extractNameAndIdProject();
+                await resetAndSetHash(id, fileName);
             });
         } catch (e) {
             toasts.warning(e.error);
@@ -120,46 +153,50 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }
     }
 
-    function extractedFileBinary() {
+    function extractedFileBinary() : Uint8Array {
         // @ts-ignore
-        const base64 = ggbApplet.getBase64();
-        const byteCharacters = atob(base64);
-        let n = byteCharacters.length;
-        const u8arr = new Uint8Array(n);
+        const base64 : string = ggbApplet.getBase64();
+        const byteCharacters : string = atob(base64);
+        let n : number = byteCharacters.length;
+        const u8arr : Uint8Array = new Uint8Array(n);
         while (n--) {
             u8arr[n] = byteCharacters.charCodeAt(n);
         }
         return u8arr;
     }
 
-    $scope.updateGGBFile = async () => {
+    function extractNameAndIdProject() : { fileName: string, id: string } {
+        let fileName : string = ($scope.data.documentSelected) ? $scope.data.documentSelected.metadata.filename : $scope.data.fileName;
+        if (!fileName.endsWith(GEOGEBRA_EXTENSION)) fileName += GEOGEBRA_EXTENSION;
+        const id : string = ($scope.data.documentSelected) ?
+            (($scope.data.documentSelected.data) ? $scope.data.documentSelected.data._id : $scope.data.documentSelected._id)
+            : $scope.data.documentId;
+        return {fileName, id};
+    }
+
+    $scope.updateGGBFile = async () : Promise<void> => {
         try {
-            const u8arr = extractedFileBinary();
-            const fileName = ($scope.data.documentSelected) ? $scope.data.documentSelected.metadata.filename : $scope.fileName;
-            const id = ($scope.data.documentSelected) ?
-                (($scope.data.documentSelected.data) ? $scope.data.documentSelected.data._id : $scope.data.documentSelected._id)
-                : $scope.documentId;
-            let file = new File([u8arr], fileName, {type: 'application/octet-stream'});
-            let doc = new Document();
+            const u8arr : Uint8Array = extractedFileBinary();
+            const {fileName, id} = extractNameAndIdProject();
+            let file : File = new File([u8arr], fileName, {type: GEOGEBRA_METADATA_TYPE});
+            let doc : Document = new Document();
             doc.name = fileName;
             doc._id = id;
             await workspace.v2.service.updateDocument(file, doc);
-            http.post("geogebra");
-            toasts.confirm("Sauvegarde effectuée");
+            http.post(GEOGEBRA_APP);
+            toasts.confirm("geogebra.save.success");
+            navigationGuardService.reset(GEOGEBRA_APP);
         } catch (e) {
             toasts.warning(e.error);
             throw (e);
         }
     }
-    $scope.openMediaLibrary = async () => {
-        // @ts-ignore
-        if (ggbApplet.getObjectNumber() == 0 || (ggbApplet.getObjectNumber() > 0 && confirm("Attention, vos modifications seront perdues. Voulez-vous continuer ?"))) {
-            $scope.displayState.getDocument = true;
-            await Utils.safeApply($scope);
-        }
+    $scope.openMediaLibrary = async () : Promise<void> => {
+        $scope.displayState.getDocument = true;
+        await Utils.safeApply($scope);
     }
-    $scope.saveGGB = async () => {
-        if ($scope.data.documentSelected || $scope.documentId) {
+    $scope.saveGGB = async () : Promise<void> => {
+        if ($scope.data.documentSelected || $scope.data.documentId) {
             $scope.updateGGBFile();
         } else {
             $scope.displayState.name = true;
@@ -167,7 +204,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
         }
     };
 
-    $scope.cancelSaveDocument = async () => {
+    $scope.cancelSaveDocument = async () : Promise<void> => {
         $scope.displayState.name = false;
         await Utils.safeApply($scope);
     }

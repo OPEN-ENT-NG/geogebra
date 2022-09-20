@@ -1,47 +1,58 @@
-<div class="row" style="z-index: 10">
-    <div class="cell zero-mobile">
-        <h1>
-            <i18n>geogebra.title</i18n>
-        </h1>
-    </div>
-    <div class="cell twelve-mobile right-magnet">
-        <button class="box-shadow-button" ng-click="newGGB()">Nouveau projet Geogebra</button>
-    </div>
-    <div class="cell twelve-mobile right-magnet right-spacing">
-        <button class="cancel box-shadow-button" ng-click="openMediaLibrary()">Ouvrir</button>
-    </div>
-    <div class="cell twelve-mobile right-magnet right-spacing">
-        <button class="cancel box-shadow-button" ng-click="saveGGB()">Enregistrer</button>
-    </div>
-    <div class="cell twelve-mobile right-magnet right-spacing center-pmb"
-         ng-if="!data.documentSelected && !data.documentSelected.metadata && !data.documentSelected.metadata.filename">
-        <span>[[fileName]]</span>
-    </div>
-    <div class="cell twelve-mobile right-magnet right-spacing center-pmb"
-        ng-if="data && data.documentSelected && data.documentSelected.metadata && data.documentSelected.metadata.filename">
-        <span>[[data.documentSelected.metadata.filename]]</span>
+<div guard-root="geogebra"  ng-click="updateBase64()">
+    <div class="row top-index">
+        <div class="cell zero-mobile">
+            <h1>
+                <i18n>geogebra.title</i18n>
+            </h1>
+        </div>
+        <div class="cell twelve-mobile right-magnet">
+            <button class="box-shadow-button" ng-hide="isEmptyProject()" navigation-trigger="newGGB()">
+                <i18n>geogebra.new.project</i18n>
+            </button>
+            <button class="box-shadow-button" ng-show="isEmptyProject()" ng-click="newGGB()">
+                <i18n>geogebra.new.project</i18n>
+            </button>
+        </div>
+        <div class="cell twelve-mobile right-magnet right-spacing">
+            <button class="cancel box-shadow-button" ng-hide="isEmptyProject()" navigation-trigger="openMediaLibrary()">
+                <i18n>geogebra.open</i18n>
+            </button>
+            <button class="cancel box-shadow-button" ng-show="isEmptyProject()" ng-click="openMediaLibrary()">
+                <i18n>geogebra.open</i18n>
+            </button>
+        </div>
+        <div class="cell twelve-mobile right-magnet right-spacing">
+            <button class="cancel box-shadow-button" ng-click="saveGGB()"><i18n>save</i18n></button>
+        </div>
+        <div class="cell twelve-mobile right-magnet right-spacing center-pmb"
+             ng-if="data.fileName">
+            <span>[[data.fileName]]</span>
+        </div>
     </div>
 
+    <div id="ggb-element" ng-init="init()" class="geogebra-app"></div>
+    <input type="text" ng-model="data.base64" ng-show="false" input-guard>
+
+    <lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
+        <div ng-if="displayState.getDocument">
+            <media-library reset-guard="null" ng-model="data.documentSelected"
+                           ng-change="displayState.getDocument = false; getGGB();" file-format="'any'"></media-library>
+        </div>
+    </lightbox>
+    <lightbox show="displayState.name" on-close="displayState.name = false">
+        <div ng-if="displayState.name">
+            <div class="row">
+                <h1><i18n>geogebra.project.name</i18n></h1>
+                <form>
+                    <input type="text" ng-model="name" placeholder="[[name]]" autofocus/>.ggb
+                </form>
+            </div>
+            <div class="row">
+                <input ng-disabled="!name || name.trim() == ''" type="submit" class="button right-magnet"
+                       reset-guard="saveDocument(name)" i18n-value="confirm"/>
+                <input type="button" class="cancel right-magnet horizontal-spacing-twice"
+                       ng-click="cancelSaveDocument()" i18n-value="cancel"/>
+            </div>
+        </div>
+    </lightbox>
 </div>
-
-<div id="ggb-element" ng-init="init()" class="geogebra-app"></div>
-
-<lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
-    <div ng-if="displayState.getDocument">
-        <media-library ng-model="data.documentSelected" ng-change="displayState.getDocument = false; getGGB();" file-format="'any'"></media-library>
-    </div>
-</lightbox>
-<lightbox show="displayState.name" on-close="displayState.name = false">
-    <div ng-if="displayState.name">
-        <div class="row">
-            <h1>Nom de votre projet Geogebra</h1>
-            <form>
-                <input type="text" ng-model="name" placeholder="[[name]]" autofocus/>.ggb
-            </form>
-        </div>
-        <div class="row">
-            <input ng-disabled="!name || name.trim() == ''" type="submit" class="button right-magnet" ng-click="saveDocument(name)" i18n-value="Confirmer"/>
-            <input type="button" class="cancel right-magnet horizontal-spacing-twice" ng-click="cancelSaveDocument()" i18n-value="Annuler"/>
-        </div>
-    </div>
-</lightbox>
