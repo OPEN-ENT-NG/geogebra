@@ -1,7 +1,7 @@
 import {Document, navigationGuardService, ng, template, toasts, workspace} from 'entcore';
 import {Utils} from "../utils/Utils";
 import http, {AxiosResponse} from "axios";
-import {GEOGEBRA_APP, GEOGEBRA_EXTENSION, GEOGEBRA_FILENAME_URL, GEOGEBRA_METADATA_TYPE} from "../behaviours";
+import {GEOGEBRA_APP, GEOGEBRA_EXTENSION, GEOGEBRA_FILENAME_URL, GEOGEBRA_METADATA_TYPE} from "../geogebraBehaviours";
 
 
 declare var GGBApplet: any;
