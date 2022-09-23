@@ -1,4 +1,4 @@
-<div guard-root="geogebra"  ng-click="updateBase64()">
+<div guard-root="geogebra">
     <div class="row top-index">
         <div class="cell zero-mobile">
             <h1>
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div id="ggb-element" ng-init="init()" class="geogebra-app"></div>
+    <div id="ggb-element" ng-init="init()" class="geogebra-app" ng-click="updateBase64()"></div>
     <input type="text" ng-model="data.base64" ng-show="false" input-guard>
 
     <lightbox show="displayState.getDocument" on-close="displayState.getDocument = false">
