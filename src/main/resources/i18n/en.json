@@ -2,5 +2,8 @@
   "geogebra.title": "Geogebra",
   "geogebra.new.project": "New Geogebra project",
   "geogebra.open": "Open",
-  "geogebra.project.name": "Geogebra project name"
+  "geogebra.project.name": "Geogebra project name",
+  "geogebra.save.success": "Success saving",
+  "geogebra.save.success.applis": "Saving in \"Documents ajoutés dans les applis\"",
+  "geogebra.get.error": "An error was throw when getting geogebra project"
 }

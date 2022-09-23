@@ -1,6 +1,6 @@
 import {Document, navigationGuardService, ng, template, toasts, workspace} from 'entcore';
 import {Utils} from "../utils/Utils";
-import http, {AxiosResponse} from "axios";
+import http, {AxiosError, AxiosResponse} from "axios";
 import {GEOGEBRA_APP, GEOGEBRA_EXTENSION, GEOGEBRA_FILENAME_URL, GEOGEBRA_METADATA_TYPE} from "../geogebraBehaviours";
 
 
@@ -57,14 +57,14 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
                 const hash : string = window.location.hash;
                 if(hash.length > 0){
                     window.documentId = hash.substring(hash.indexOf("#/") + 2, hash.indexOf(GEOGEBRA_FILENAME_URL));
-                    window.fileName = hash.substring(
+                    window.fileName = decodeURI(hash.substring(
                         hash.indexOf(GEOGEBRA_FILENAME_URL) + GEOGEBRA_FILENAME_URL.length,
-                        hash.indexOf(GEOGEBRA_EXTENSION) + GEOGEBRA_EXTENSION.length)
+                        hash.indexOf(GEOGEBRA_EXTENSION) + GEOGEBRA_EXTENSION.length));
                 }
                 if (!!window.documentId) {
                     $scope.data.documentId = window.documentId;
                     $scope.data.fileName = window.fileName;
-                    $scope.getGGBById();
+                    await setGGBAplet(window.documentId);
                     await Utils.safeApply($scope);
                 }
             }
@@ -109,22 +109,23 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
     }
 
     const setGGBAplet = async (id: string) : Promise<void> => {
-        const file : AxiosResponse = await http.get(`workspace/document/base64/${id}`, {baseURL: '/'});
-        // @ts-ignore
-        ggbApplet.setBase64(file.data.base64File);
-        $scope.data.base64 = file.data.base64File;
-        const {fileName} = extractNameAndIdProject();
-        $scope.data.fileName = fileName;
-        await resetAndSetHash(id, fileName);
-    }
-
-    $scope.getGGBById = async () : Promise<void> => {
-        try {
-            await setGGBAplet(window.documentId);
-        } catch (e) {
-            toasts.warning(e.error);
-            throw (e);
-        }
+        http.get(`workspace/document/base64/${id}`, {baseURL: '/'})
+            .then(async (file: AxiosResponse) => {
+                if (file.status == 200) {
+                    const {fileName} = extractNameAndIdProject();
+                    $scope.data.fileName = fileName;
+                    await resetAndSetHash(id, fileName);
+                    // @ts-ignore
+                    ggbApplet.setBase64(file.data.base64File);
+                    $scope.data.base64 = file.data.base64File;
+                } else {
+                    toasts.warning('geogebra.get.error');
+                }
+            })
+            .catch((error : AxiosError) => {
+                toasts.warning('geogebra.get.error');
+                console.error(error);
+            })
     }
 
     async function resetAndSetHash(id: string, fileName: string) : Promise<void> {

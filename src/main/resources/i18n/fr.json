@@ -4,5 +4,6 @@
   "geogebra.open": "Ouvrir",
   "geogebra.project.name": "Nom de votre projet Geogebra",
   "geogebra.save.success": "Sauvegarde effectuée",
-  "geogebra.save.success.applis": "Sauvegarde effectuée dans \"Documents ajoutés dans les applis\""
+  "geogebra.save.success.applis": "Sauvegarde effectuée dans \"Documents ajoutés dans les applis\"",
+  "geogebra.get.error": "Une erreur est survenue lors de la récupération de votre projet geogebra"
 }
