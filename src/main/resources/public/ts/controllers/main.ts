@@ -57,9 +57,9 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
                 const hash : string = window.location.hash;
                 if(hash.length > 0){
                     window.documentId = hash.substring(hash.indexOf("#/") + 2, hash.indexOf(GEOGEBRA_FILENAME_URL));
-                    window.fileName = hash.substring(
+                    window.fileName = decodeURI(hash.substring(
                         hash.indexOf(GEOGEBRA_FILENAME_URL) + GEOGEBRA_FILENAME_URL.length,
-                        hash.indexOf(GEOGEBRA_EXTENSION) + GEOGEBRA_EXTENSION.length)
+                        hash.indexOf(GEOGEBRA_EXTENSION) + GEOGEBRA_EXTENSION.length));
                 }
                 if (!!window.documentId) {
                     $scope.data.documentId = window.documentId;
