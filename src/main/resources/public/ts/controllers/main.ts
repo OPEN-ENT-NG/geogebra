@@ -167,7 +167,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
     }
 
     function extractNameAndIdProject() : { fileName: string, id: string } {
-        let fileName : string = ($scope.data.documentSelected) ? $scope.data.documentSelected.metadata.filename : $scope.data.fileName;
+        let fileName : string = ($scope.data.documentSelected) ? $scope.data.documentSelected.name : $scope.data.fileName;
         if (!fileName.endsWith(GEOGEBRA_EXTENSION)) fileName += GEOGEBRA_EXTENSION;
         const id : string = ($scope.data.documentSelected) ?
             (($scope.data.documentSelected.data) ? $scope.data.documentSelected.data._id : $scope.data.documentSelected._id)
