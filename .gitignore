@@ -30,3 +30,7 @@ module-starting-pack/src/main/resources/public/font
 /src/main/resources/public/js/
 /src/main/resources/public/font
 /src/main/resources/public/dist/
+
+.env
+target
+dependency-reduced-pom.xml
