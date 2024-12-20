@@ -13,7 +13,7 @@
     <groupId>fr.openent</groupId>
     <artifactId>geogebra</artifactId>
     <version>0.2-migration-SNAPSHOT</version>
-    <packaging>pom</packaging>
+
 
     <scm>
         <connection>scm:git:https://github.com/OPEN-ENT-NG/geogebra.git</connection>
@@ -30,8 +30,7 @@
     </repositories>
 
     <properties>
-        <vertxVersion>3.9.5</vertxVersion>
-        <entCoreVersion>4.10.2</entCoreVersion>
+        <entCoreVersion>5.0-b2school-SNAPSHOT</entCoreVersion>
         <junitVersion>5.1.0</junitVersion>
         <mockitoVersion>[2.0,3.0)</mockitoVersion>
         <powerMockVersion>2.0.2</powerMockVersion>
