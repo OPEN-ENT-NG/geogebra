@@ -1,5 +1,5 @@
     {
-      "name": "fr.openent~geogebra~0.2-migration-SNAPSHOT",
+      "name": "fr.openent~geogebra~{geogebraVersion}",
       "config": {
         "main" : "fr.openent.geogebra.Geogebra",
         "port" : 8134,
