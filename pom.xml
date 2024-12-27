@@ -12,7 +12,7 @@
 
     <groupId>fr.openent</groupId>
     <artifactId>geogebra</artifactId>
-    <version>1.0.0</version>
+    <version>1.0-SNAPSHOT</version>
 
 
     <scm>
@@ -30,7 +30,7 @@
     </repositories>
 
     <properties>
-        <entCoreVersion>6.0.0</entCoreVersion>
+        <entCoreVersion>6.0-SNAPSHOT</entCoreVersion>
         <junitVersion>5.1.0</junitVersion>
         <mockitoVersion>[2.0,3.0)</mockitoVersion>
         <powerMockVersion>2.0.2</powerMockVersion>
