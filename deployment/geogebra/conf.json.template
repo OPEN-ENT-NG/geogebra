@@ -1,5 +1,5 @@
     {
-      "name": "fr.openent~geogebra~{geogebraVersion}",
+      "name": "fr.openent~geogebra~${geogebraVersion}",
       "config": {
         "main" : "fr.openent.geogebra.Geogebra",
         "port" : 8134,
