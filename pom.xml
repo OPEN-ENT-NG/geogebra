@@ -12,7 +12,7 @@
 
     <groupId>fr.openent</groupId>
     <artifactId>geogebra</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-develop-pedago-SNAPSHOT</version>
 
 
     <scm>
