@@ -2,6 +2,10 @@
   "name": "fr.openent~geogebra",
   "config": {
     "main" : "fr.openent.geogebra.Geogebra",
+    "probes": [
+      "org.entcore.common.http.health.Neo4jProbe",
+      "org.entcore.common.http.health.MongoProbe"
+    ],
     "port" : 8134,
     "app-name" : "Geogebra",
     "app-address" : "/geogebra",
