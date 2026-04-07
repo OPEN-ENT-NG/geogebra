@@ -34,3 +34,4 @@ module-starting-pack/src/main/resources/public/font
 .env
 target
 dependency-reduced-pom.xml
+edifice
