@@ -1,6 +1,6 @@
 import {Document, navigationGuardService, ng, template, toasts, workspace} from 'entcore';
 import {Utils} from "../utils/Utils";
-import http, {AxiosError, AxiosResponse} from "axios";
+import {http, HttpError, HttpResponse} from "entcore-toolkit";
 import {GEOGEBRA_APP, GEOGEBRA_EXTENSION, GEOGEBRA_FILENAME_URL, GEOGEBRA_METADATA_TYPE} from "../geogebraBehaviours";
 
 
@@ -110,7 +110,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
 
     const setGGBAplet = async (id: string) : Promise<void> => {
         http.get(`workspace/document/base64/${id}`, {baseURL: '/'})
-            .then(async (file: AxiosResponse) => {
+            .then(async (file: HttpResponse) => {
                 if (file.status == 200) {
                     const {fileName} = extractNameAndIdProject();
                     $scope.data.fileName = fileName;
@@ -122,7 +122,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
                     toasts.warning('geogebra.get.error');
                 }
             })
-            .catch((error : AxiosError) => {
+            .catch((error : HttpError) => {
                 toasts.warning('geogebra.get.error');
                 console.error(error);
             })
@@ -142,7 +142,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
             workspace.v2.service.createDocument(file, doc, null,
                 {visibility: "protected", application: "media-library"}).then(async data => {
                 $scope.data.documentSelected = data;
-                http.post(GEOGEBRA_APP);
+                http.post(GEOGEBRA_APP, {});
                 toasts.confirm("geogebra.save.success.applis");
                 $scope.displayState.name = false;
                 const {fileName, id} = extractNameAndIdProject();
@@ -184,7 +184,7 @@ export const mainController = ng.controller('MainController', ['$timeout','$scop
             doc.name = fileName;
             doc._id = id;
             await workspace.v2.service.updateDocument(file, doc);
-            http.post(GEOGEBRA_APP);
+            http.post(GEOGEBRA_APP, {});
             toasts.confirm("geogebra.save.success");
             navigationGuardService.reset(GEOGEBRA_APP);
         } catch (e) {
