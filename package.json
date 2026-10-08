@@ -1,6 +1,6 @@
 {
   "name": "Geogebra",
-  "version": "1.2.5-dev.0",
+  "version": "1.2.0-develop-pedago.0",
   "description": "Geogebra",
   "main": "gulpfile.js",
   "author": "",
